@@ -50,7 +50,9 @@ sclae_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## import and clean data
+## Problem 2
+
+##### import and clean data
 
 ``` r
 birth_wt = read_csv("./data/birthweight.csv") %>% 
@@ -74,7 +76,7 @@ birth_wt = read_csv("./data/birthweight.csv") %>%
     ## )
     ## ℹ Use `spec()` for the full column specifications.
 
-# propose a regression model for brthweight
+##### propose a regression model for brthweight
 
 ``` r
 # first step: fit a model with all the variables 
@@ -248,7 +250,7 @@ current_model = lm(formula = bwt ~ babysex + bhead + blength + delwt + fincome +
     gaweeks + mheight + mrace + parity + ppwt + smoken, data = birth_wt)
 ```
 
-# plot of model residuals against fitted values
+##### plot of model residuals against fitted values
 
 ``` r
 residuals = add_residuals(birth_wt, current_model)
@@ -272,9 +274,37 @@ resid_pred %>%
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
 
-## compare your model to two others
+##### compare your model to two others
 
 ``` r
 given_model1 = lm(bwt ~ blength + gaweeks, data = birth_wt)
 given_model2 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birth_wt)
 ```
+
+## Problem 3
+
+##### import data
+
+``` r
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+```
+
+    ## Registered S3 method overwritten by 'hoardr':
+    ##   method           from
+    ##   print.cache_info httr
+
+    ## using cached file: /Users/jrq/Library/Caches/R/noaa_ghcnd/USW00094728.dly
+
+    ## date created (size, mb): 2020-11-11 12:39:21 (7.531)
+
+    ## file min/max dates: 1869-01-01 / 2020-11-30
