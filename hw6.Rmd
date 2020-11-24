@@ -1,0 +1,81 @@
+---
+title: "homework 6"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(mgcv)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = 0.6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.color = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+sclae_color_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## import and clean data 
+```{r}
+birth_wt = read_csv("./data/birthweight.csv") %>% 
+  janitor::clean_names() %>% 
+   mutate(
+     babysex = as.factor(babysex),
+     frace = as.factor(frace),
+     malform = as.factor(malform),
+     mrace = as.factor(mrace),
+     babysex = recode(babysex,"1"="male","2"="female"),
+     frace = recode(frace,"1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other", "9" = "Unknown"),
+     malform = recode(malform,"0" = "absent", "1" = "present"),
+     mrace = recode(mrace,"1" = "White", "2" = "Black", "3" = "Asian", "4" = "Puerto Rican", "8" = "Other")
+     )
+```
+
+
+# propose a regression model for brthweight 
+```{r}
+# first step: fit a model with all the variables 
+full_model = lm(bwt ~ ., data = birth_wt)
+# perform a backward step-wise elimination 
+step(full_model,direction = "backward") 
+# according to the output of the backward elimination, the following model has the smallest AIC, so below is my final model for birthweight 
+current_model = lm(formula = bwt ~ babysex + bhead + blength + delwt + fincome + 
+    gaweeks + mheight + mrace + parity + ppwt + smoken, data = birth_wt)
+```
+
+
+# plot of model residuals against fitted values
+```{r}
+residuals = add_residuals(birth_wt, current_model)
+predictions = add_predictions(birth_wt, current_model)
+resid_pred = full_join(residuals,predictions)
+
+resid_pred %>% 
+  ggplot(aes(x = pred, y = resid, color = bwt)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Model residuals against fitted values",
+    x = "Predictions",
+    y = "Residuals"
+  ) +
+  geom_hline(aes(yintercept = 0), color = "red")
+
+```
+
+
+## compare your model to two others
+```{r}
+given_model1 = lm(bwt ~ blength + gaweeks, data = birth_wt)
+given_model2 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birth_wt)
+```
+
