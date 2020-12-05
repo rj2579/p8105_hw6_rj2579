@@ -250,26 +250,31 @@ current_model = lm(formula = bwt ~ babysex + bhead + blength + delwt + fincome +
     gaweeks + mheight + mrace + parity + ppwt + smoken, data = birth_wt)
 ```
 
+I first fitted a full model that contains all variables. This model can
+be used for comparison later one. Then, I used the backward function to
+perform a step-wise subtraction to eliminate variables that are not
+significantly associated with our outcome of interest, baby’s birth
+weight. According to the function output, variable babysex, bhead,
+blength, delwt, fincome, gaweeks, mheight, mrace, parity, ppwt, and
+smoken should be included into the model. And such model fit our dataset
+the best.
+
 ##### plot of model residuals against fitted values
 
 ``` r
 residuals = add_residuals(birth_wt, current_model)
 predictions = add_predictions(birth_wt, current_model)
-resid_pred = full_join(residuals,predictions)
-```
+resid_pred = merge(residuals,predictions)
 
-    ## Joining, by = c("babysex", "bhead", "blength", "bwt", "delwt", "fincome", "frace", "gaweeks", "malform", "menarche", "mheight", "momage", "mrace", "parity", "pnumlbw", "pnumsga", "ppbmi", "ppwt", "smoken", "wtgain")
-
-``` r
 resid_pred %>% 
   ggplot(aes(x = pred, y = resid, color = bwt)) +
   geom_point(alpha = 0.5) +
+  geom_hline(aes(yintercept = 0), color = "red") +
   labs(
     title = "Model residuals against fitted values",
     x = "Predictions",
     y = "Residuals"
-  ) +
-  geom_hline(aes(yintercept = 0), color = "red")
+  )
 ```
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
@@ -280,6 +285,50 @@ resid_pred %>%
 given_model1 = lm(bwt ~ blength + gaweeks, data = birth_wt)
 given_model2 = lm(bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex + blength*babysex + bhead*blength*babysex, data = birth_wt)
 ```
+
+``` r
+cv_df =
+  crossv_mc(birth_wt, 100) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble))
+
+cv_df = 
+  cv_df %>% 
+  mutate(
+    current_model = map(train, ~lm(
+                                   formula = bwt ~ babysex + bhead + blength + delwt + fincome + 
+                                   gaweeks + mheight + mrace + parity + ppwt + smoken, data = birth_wt
+                                   )),
+    given_model1 = map(train, ~lm(
+                                  bwt ~ blength + gaweeks, data = birth_wt
+                                  )),
+    given_model2 = map(train, ~lm(
+                                  bwt ~ bhead + blength + babysex + bhead*blength + bhead*babysex +
+                                  blength*babysex + bhead*blength*babysex, data = birth_wt
+                                  ))
+    ) %>% 
+  mutate(
+    rmse_current = map2_dbl(current_model, test, ~rmse(model = .x, data = .y)),
+    rmse_model1 = map2_dbl(given_model1, test, ~rmse(model = .x, data = .y)),
+    rmse_model2 = map2_dbl(given_model2, test, ~rmse(model = .x, data = .y)))
+```
+
+``` r
+cv_df %>%
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>%
+  ggplot(aes(x = model, y = rmse)) +
+  geom_violin(aes(fill = model)) + 
+  theme_light()
+```
+
+<img src="hw6_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
 
 ## Problem 3
 
@@ -308,3 +357,40 @@ weather_df =
     ## date created (size, mb): 2020-11-11 12:39:21 (7.531)
 
     ## file min/max dates: 1869-01-01 / 2020-11-30
+
+# produce estimated of the two quantities
+
+``` r
+boot_straps = 
+  weather_df %>% 
+  modelr::bootstrap(n = 5) %>% 
+  mutate(
+    models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
+    r_square = map(models, broom::glance),
+    results = map(models, broom::tidy)
+    ) %>% 
+  select(-strap, -models) %>% 
+  unnest(results) 
+```
+
+# plot the distribution of the two quantities
+
+``` r
+boot_straps %>% 
+  ggplot(aes(x = r_square)) + 
+  geom_density(aes(y = stat(count / sum(count)))) +
+  labs(
+    title = "The distribution of estimated r-square"
+  ) +
+  geom_vline(aes(xintercept = mean(r_square)))
+```
+
+    ## Warning in mean.default(r_square): argument is not numeric or logical: returning
+    ## NA
+    
+    ## Warning in mean.default(r_square): argument is not numeric or logical: returning
+    ## NA
+
+    ## Error in is.finite(x): default method not implemented for type 'list'
+
+<img src="hw6_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
