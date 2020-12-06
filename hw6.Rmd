@@ -78,6 +78,7 @@ resid_pred %>%
   )
 ```
 
+The residuals are more concentrated near 0 when the predicted values are larger. When the predicted values are smaller, residuals tend to be a little bit spread out. 
 
 ##### compare your model to two others
 ```{r}

@@ -281,6 +281,10 @@ resid_pred %>%
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-4-1.png" width="90%" />
 
+The residuals are more concentrated near 0 when the predicted values are
+larger. When the predicted values are smaller, residuals tend to be a
+little bit spread out.
+
 ##### compare your model to two others
 
 ``` r
@@ -445,7 +449,7 @@ boot_straps %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 0.8939 |
+| 2.5%  | 0.8940 |
 | 97.5% | 0.9274 |
 
 The 95% confidence interval for r-square
@@ -465,7 +469,7 @@ beta_df %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 1.9619 |
-| 97.5% | 2.0576 |
+| 2.5%  | 1.9641 |
+| 97.5% | 2.0584 |
 
 The 95% confidence interval for log(beta0\*beta1)
