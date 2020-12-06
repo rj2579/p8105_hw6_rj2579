@@ -56,7 +56,7 @@ set.seed(1)
 
 ## Problem 2
 
-##### import and clean data
+##### Import and clean data
 
 ``` r
 birth_wt = read_csv("./data/birthweight.csv") %>% 
@@ -80,7 +80,7 @@ birth_wt = read_csv("./data/birthweight.csv") %>%
     ## )
     ## ℹ Use `spec()` for the full column specifications.
 
-##### propose a regression model for brthweight
+##### Propose a regression model for brthweight
 
 ``` r
 # first step: fit a model with all the variables 
@@ -263,7 +263,7 @@ blength, delwt, fincome, gaweeks, mheight, mrace, parity, ppwt, and
 smoken should be included into the model. And such model fit our dataset
 the best.
 
-##### plot of model residuals against fitted values
+##### Plot of model residuals against fitted values
 
 ``` r
 residuals = add_residuals(birth_wt, current_model)
@@ -287,7 +287,7 @@ The residuals are more concentrated near 0 when the predicted values are
 larger. When the predicted values are smaller, residuals tend to be a
 little bit spread out.
 
-##### compare your model to two others
+##### Compare your model to two others
 
 ``` r
 given_model1 = lm(bwt ~ blength + gaweeks, data = birth_wt)
@@ -364,7 +364,7 @@ predictive capability compared to the two given models.
 
 ## Problem 3
 
-##### import data
+##### Import data
 
 ``` r
 weather_df = 
@@ -390,7 +390,7 @@ weather_df =
 
     ## file min/max dates: 1869-01-01 / 2020-11-30
 
-##### produce estimated of the r-square and log(beta0\*beta1)
+##### Produce estimated of the r-square and log(beta0\*beta1)
 
 ``` r
 boot_straps = 
@@ -423,7 +423,7 @@ beta_df =
   mutate(log_betas = log(intercept * tmin))
 ```
 
-##### plot the distribution of the r-square and log(beta0\*beta1)
+##### Plot the distribution of the r-square and log(beta0\*beta1)
 
 ``` r
 #plot the distribution of the r-square
@@ -454,7 +454,7 @@ beta_df %>%
 According to these to plots, we can conclude that the distribution of
 the r-square and log(beta0\*beta1) are approximately normal.
 
-##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0\*beta1)
+##### Identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0\*beta1)
 
 ``` r
 #95% confidence interval for r-square
@@ -502,5 +502,5 @@ beta_df %>%
 
 The 95% confidence interval for log(beta0\*beta1)
 
-The 95% confidence interval for r-square is (0.8939, 0.9265). The 95%
-confidence interval for log(beta0\*beta1 is (1.9659, 2.0582).
+The 95% confidence interval for r-square is (0.8937, 0.9275). The 95%
+confidence interval for log(beta0\*beta1 is (1.9669, 2.0585).
