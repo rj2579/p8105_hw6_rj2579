@@ -50,6 +50,8 @@ sclae_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
+## Problem 1 is a lecture example
+
 ## Problem 2
 
 ##### import and clean data
@@ -358,39 +360,112 @@ weather_df =
 
     ## file min/max dates: 1869-01-01 / 2020-11-30
 
-# produce estimated of the two quantities
+##### produce estimated of the two quantities
 
 ``` r
 boot_straps = 
   weather_df %>% 
-  modelr::bootstrap(n = 5) %>% 
+  modelr::bootstrap(n = 5000) %>% 
   mutate(
     models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
     r_square = map(models, broom::glance),
     results = map(models, broom::tidy)
     ) %>% 
   select(-strap, -models) %>% 
-  unnest(results) 
+  #obtain the estimated r-squares
+  unnest(r_square, results) %>% 
+  janitor::clean_names() 
 ```
 
-# plot the distribution of the two quantities
+    ## Warning: unnest() has a new interface. See ?unnest for details.
+    ## Try `df %>% unnest(c(r_square, results))`, with `mutate()` if needed
 
 ``` r
-boot_straps %>% 
-  ggplot(aes(x = r_square)) + 
-  geom_density(aes(y = stat(count / sum(count)))) +
-  labs(
-    title = "The distribution of estimated r-square"
-  ) +
-  geom_vline(aes(xintercept = mean(r_square)))
+beta_df = 
+  boot_straps %>% 
+  mutate(term = recode(term, "(Intercept)" = "intercept")) %>% 
+  #obtain the estimated betas 
+  pivot_wider(
+    id_cols = id,
+    names_from = term,
+    values_from = estimate
+  ) %>% 
+  mutate(log_betas = log(intercept * tmin))
 ```
 
-    ## Warning in mean.default(r_square): argument is not numeric or logical: returning
-    ## NA
-    
-    ## Warning in mean.default(r_square): argument is not numeric or logical: returning
-    ## NA
+##### plot the distribution of the r-square and log(beta0\*beta1)
 
-    ## Error in is.finite(x): default method not implemented for type 'list'
+``` r
+#plot the distribution of the r-square
+boot_straps %>% 
+  filter(term == "tmin") %>% 
+  ggplot(aes(x = r_squared)) + 
+  geom_density() +
+  geom_vline(aes(xintercept = mean(r_squared))) +
+  labs(
+    title = "The distribution of estimated r-square"
+  ) 
+```
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
+
+``` r
+#plot the distribution of the log(beta0*beta1)
+beta_df %>% 
+  ggplot(aes(x = log_betas)) + 
+  geom_density() +
+  geom_vline(aes(xintercept = mean(log_betas))) +
+  labs(
+    title = "The distribution of estimated log(beta0*beta1)"
+  )
+```
+
+<img src="hw6_files/figure-gfm/unnamed-chunk-10-2.png" width="90%" />
+
+##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0\*beta1)
+
+``` r
+#95% confidence interval for r-square
+boot_straps %>% 
+  filter(term == "tmin") %>% 
+  pull(r_squared) %>% 
+  quantile(c(0.025, 0.975)) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 4,
+               caption = "The 95% confidence interval for r-square")
+```
+
+    ## Warning: 'tidy.numeric' is deprecated.
+    ## See help("Deprecated")
+
+    ## Warning: `data_frame()` is deprecated as of tibble 1.1.0.
+    ## Please use `tibble()` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_warnings()` to see where this warning was generated.
+
+| names |      x |
+| :---- | -----: |
+| 2.5%  | 0.8939 |
+| 97.5% | 0.9274 |
+
+The 95% confidence interval for r-square
+
+``` r
+# 95% confidence interval for log(beta0*beta1)
+beta_df %>% 
+  pull(log_betas) %>% 
+  quantile(c(0.025, 0.975)) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 4,
+               caption = "The 95% confidence interval for log(beta0*beta1)")
+```
+
+    ## Warning: 'tidy.numeric' is deprecated.
+    ## See help("Deprecated")
+
+| names |      x |
+| :---- | -----: |
+| 2.5%  | 1.9619 |
+| 97.5% | 2.0576 |
+
+The 95% confidence interval for log(beta0\*beta1)

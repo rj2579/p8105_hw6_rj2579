@@ -25,6 +25,7 @@ sclae_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
+## Problem 1 is a lecture example 
 
 ## Problem 2
 
@@ -144,28 +145,77 @@ weather_df =
   select(name, id, everything())
 ```
 
-# produce estimated of the two quantities 
+##### produce estimated of the two quantities 
 ```{r}
 boot_straps = 
   weather_df %>% 
-  modelr::bootstrap(n = 5) %>% 
+  modelr::bootstrap(n = 5000) %>% 
   mutate(
     models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
     r_square = map(models, broom::glance),
     results = map(models, broom::tidy)
     ) %>% 
   select(-strap, -models) %>% 
-  unnest(results) 
+  #obtain the estimated r-squares
+  unnest(r_square, results) %>% 
+  janitor::clean_names() 
+
+
+beta_df = 
+  boot_straps %>% 
+  mutate(term = recode(term, "(Intercept)" = "intercept")) %>% 
+  #obtain the estimated betas 
+  pivot_wider(
+    id_cols = id,
+    names_from = term,
+    values_from = estimate
+  ) %>% 
+  mutate(log_betas = log(intercept * tmin))
 ```
 
-# plot the distribution of the two quantities 
+##### plot the distribution of the r-square and log(beta0*beta1)
 ```{r, error = TRUE}
+#plot the distribution of the r-square
 boot_straps %>% 
-  ggplot(aes(x = r_square)) + 
-  geom_density(aes(y = stat(count / sum(count)))) +
+  filter(term == "tmin") %>% 
+  ggplot(aes(x = r_squared)) + 
+  geom_density() +
+  geom_vline(aes(xintercept = mean(r_squared))) +
   labs(
     title = "The distribution of estimated r-square"
-  ) +
-  geom_vline(aes(xintercept = mean(r_square)))
+  ) 
+
+
+#plot the distribution of the log(beta0*beta1)
+beta_df %>% 
+  ggplot(aes(x = log_betas)) + 
+  geom_density() +
+  geom_vline(aes(xintercept = mean(log_betas))) +
+  labs(
+    title = "The distribution of estimated log(beta0*beta1)"
+  )
+
+```
+
+
+##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0*beta1)
+```{r}
+#95% confidence interval for r-square
+boot_straps %>% 
+  filter(term == "tmin") %>% 
+  pull(r_squared) %>% 
+  quantile(c(0.025, 0.975)) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 4,
+               caption = "The 95% confidence interval for r-square")
+
+
+# 95% confidence interval for log(beta0*beta1)
+beta_df %>% 
+  pull(log_betas) %>% 
+  quantile(c(0.025, 0.975)) %>% 
+  broom::tidy() %>% 
+  knitr::kable(digits = 4,
+               caption = "The 95% confidence interval for log(beta0*beta1)")
 ```
 
