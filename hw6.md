@@ -336,6 +336,30 @@ cv_df %>%
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
 
+``` r
+cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_") %>%
+  group_by(model) %>% 
+  summarize(avg_rmse = mean(rmse)) %>% 
+  knitr::kable()
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+| model   | avg\_rmse |
+| :------ | --------: |
+| current |  272.3942 |
+| model1  |  334.0407 |
+| model2  |  288.5015 |
+
+According to the plot and table, we know that current model has better
+predictive capability compared to the two given models.
+
 ## Problem 3
 
 ##### import data
@@ -449,8 +473,8 @@ boot_straps %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 0.8940 |
-| 97.5% | 0.9274 |
+| 2.5%  | 0.8938 |
+| 97.5% | 0.9273 |
 
 The 95% confidence interval for r-square
 
@@ -469,7 +493,7 @@ beta_df %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 1.9641 |
-| 97.5% | 2.0584 |
+| 2.5%  | 1.9635 |
+| 97.5% | 2.0588 |
 
 The 95% confidence interval for log(beta0\*beta1)

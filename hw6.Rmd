@@ -126,8 +126,20 @@ cv_df %>%
   ggplot(aes(x = model, y = rmse)) +
   geom_violin(aes(fill = model)) + 
   theme_light()
+
+cv_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_") %>%
+  group_by(model) %>% 
+  summarize(avg_rmse = mean(rmse)) %>% 
+  knitr::kable()
 ```
 
+According to the plot and table, we know that current model has better predictive capability compared to the two given models. 
 
 ## Problem 3 
 
