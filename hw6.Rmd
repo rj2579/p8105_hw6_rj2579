@@ -23,6 +23,8 @@ options(
 
 sclae_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1)
 ```
 
 ## Problem 1 is a lecture example 
@@ -188,7 +190,7 @@ beta_df =
 ```
 
 ##### plot the distribution of the r-square and log(beta0*beta1)
-```{r, error = TRUE}
+```{r, cache=TRUE}
 #plot the distribution of the r-square
 boot_straps %>% 
   filter(term == "tmin") %>% 
@@ -210,10 +212,10 @@ beta_df %>%
   )
 
 ```
-According to these to plots, we can conclude that the distribution of the r-square and log(beta0*beta1) are aprroximately normal. 
+According to these to plots, we can conclude that the distribution of the r-square and log(beta0*beta1) are approximately normal. 
 
 ##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0*beta1)
-```{r}
+```{r, cache=TRUE}
 #95% confidence interval for r-square
 boot_straps %>% 
   filter(term == "tmin") %>% 
@@ -233,3 +235,4 @@ beta_df %>%
                caption = "The 95% confidence interval for log(beta0*beta1)")
 ```
 
+The 95% confidence interval for r-square is (0.8939, 0.9265). The 95% confidence interval for log(beta0*beta1 is (1.9659, 2.0582).

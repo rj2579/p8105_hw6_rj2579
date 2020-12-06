@@ -48,6 +48,8 @@ options(
 
 sclae_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1)
 ```
 
 ## Problem 1 is a lecture example
@@ -353,9 +355,9 @@ cv_df %>%
 
 | model   | avg\_rmse |
 | :------ | --------: |
-| current |  271.7712 |
-| model1  |  333.7550 |
-| model2  |  288.3390 |
+| current |  271.2063 |
+| model1  |  331.5183 |
+| model2  |  286.4521 |
 
 According to the plot and table, we know that current model has better
 predictive capability compared to the two given models.
@@ -450,7 +452,7 @@ beta_df %>%
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-10-2.png" width="90%" />
 According to these to plots, we can conclude that the distribution of
-the r-square and log(beta0\*beta1) are aprroximately normal.
+the r-square and log(beta0\*beta1) are approximately normal.
 
 ##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0\*beta1)
 
@@ -475,8 +477,8 @@ boot_straps %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 0.8938 |
-| 97.5% | 0.9273 |
+| 2.5%  | 0.8937 |
+| 97.5% | 0.9275 |
 
 The 95% confidence interval for r-square
 
@@ -495,7 +497,10 @@ beta_df %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 1.9663 |
-| 97.5% | 2.0602 |
+| 2.5%  | 1.9669 |
+| 97.5% | 2.0585 |
 
 The 95% confidence interval for log(beta0\*beta1)
+
+The 95% confidence interval for r-square is (0.8939, 0.9265). The 95%
+confidence interval for log(beta0\*beta1 is (1.9659, 2.0582).
