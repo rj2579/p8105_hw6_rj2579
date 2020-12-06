@@ -141,6 +141,7 @@ cv_df %>%
 
 According to the plot and table, we know that current model has better predictive capability compared to the two given models. 
 
+
 ## Problem 3 
 
 ##### import data 
@@ -158,7 +159,7 @@ weather_df =
   select(name, id, everything())
 ```
 
-##### produce estimated of the two quantities 
+##### produce estimated of the r-square and log(beta0*beta1)
 ```{r}
 boot_straps = 
   weather_df %>% 
@@ -209,7 +210,7 @@ beta_df %>%
   )
 
 ```
-
+According to these to plots, we can conclude that the distribution of the r-square and log(beta0*beta1) are aprroximately normal. 
 
 ##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0*beta1)
 ```{r}

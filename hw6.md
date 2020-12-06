@@ -353,9 +353,9 @@ cv_df %>%
 
 | model   | avg\_rmse |
 | :------ | --------: |
-| current |  272.3942 |
-| model1  |  334.0407 |
-| model2  |  288.5015 |
+| current |  271.7712 |
+| model1  |  333.7550 |
+| model2  |  288.3390 |
 
 According to the plot and table, we know that current model has better
 predictive capability compared to the two given models.
@@ -388,7 +388,7 @@ weather_df =
 
     ## file min/max dates: 1869-01-01 / 2020-11-30
 
-##### produce estimated of the two quantities
+##### produce estimated of the r-square and log(beta0\*beta1)
 
 ``` r
 boot_straps = 
@@ -449,6 +449,8 @@ beta_df %>%
 ```
 
 <img src="hw6_files/figure-gfm/unnamed-chunk-10-2.png" width="90%" />
+According to these to plots, we can conclude that the distribution of
+the r-square and log(beta0\*beta1) are aprroximately normal.
 
 ##### identify the 2.5% and 97.5% quantiles to provide a 95% confidence interval for r-square and log(beta0\*beta1)
 
@@ -493,7 +495,7 @@ beta_df %>%
 
 | names |      x |
 | :---- | -----: |
-| 2.5%  | 1.9635 |
-| 97.5% | 2.0588 |
+| 2.5%  | 1.9663 |
+| 97.5% | 2.0602 |
 
 The 95% confidence interval for log(beta0\*beta1)
